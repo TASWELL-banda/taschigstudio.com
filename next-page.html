@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Download Website</title>
+    <link rel="stylesheet" href="music-style-v2.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Like button functionality
+            document.querySelectorAll('.like-btn').forEach(button => {
+                const songId = button.getAttribute('data-song-id');
+                const storedLikes = localStorage.getItem(`likes_${songId}`) || 0;
+                button.innerText = `Like (${storedLikes})`;
+
+                button.addEventListener('click', function() {
+                    let likes = parseInt(localStorage.getItem(`likes_${songId}`)) || 0;
+                    likes++;
+                    localStorage.setItem(`likes_${songId}`, likes);
+                    button.innerText = `Like (${likes})`;
+                });
+            });
+
+            // Share button functionality using Web Share API
+            document.querySelectorAll('.share-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const songTitle = button.getAttribute('data-song-title');
+                    const shareUrl = window.location.href;
+
+                    // Check if the Web Share API is supported
+                    if (navigator.share) {
+                        navigator.share({
+                            title: songTitle,
+                            text: `Check out this amazing song: ${songTitle}`,
+                            url: shareUrl
+                        }).then(() => {
+                            alert('Thanks for sharing!');
+                        }).catch(err => {
+                            console.error('Error sharing:', err);
+                            alert('Error sharing the song. Please try again later.');
+                        });
+                    } else {
+                        // Fallback for browsers that don't support Web Share API
+                        const textArea = document.createElement('textarea');
+                        textArea.value = `Check out this amazing song: ${songTitle} at ${shareUrl}`;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Link copied to clipboard! You can now share it manually.');
+                    }
+                });
+            });
+
+            // Next button functionality
+            document.querySelector('.next-btn').addEventListener('click', function() {
+                window.location.href = 'thankyou.html'; // Change this to the URL of the next page
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>@TASCHIG STUDIO</h1>
+    </header>
+    
+    <main>
+        <div class="song-list">
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Music Download Website</title>
+                <link rel="stylesheet" href="music-style-v2.css">
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                    }
+            
+                    .song-list {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 20px;
+                        margin: 20px;
+                    }
+            
+                    .song {
+                        position: relative;
+                        width: 100%;
+                        max-width: 500px;
+                        height: 300px;
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        border-radius: 15px;
+                        overflow: hidden;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    }
+            
+                    .song::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+                    }
+            
+                    .song-actions {
+                        position: absolute;
+                        bottom: 20px;
+                        left: 20px;
+                        color: white;
+                        z-index: 2;
+                    }
+            
+                    .song-actions button, .song-actions a {
+                        background-color: rgba(0, 0, 0, 0.6);
+                        color: white;
+                        border: none;
+                        padding: 10px 15px;
+                        margin-right: 10px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+            
+                    .song-actions button:hover, .song-actions a:hover {
+                        background-color: rgba(0, 0, 0, 0.8);
+                    }
+            
+                    audio {
+                        width: 100%;
+                        margin-top: 10px;
+                        z-index: 2;
+                    }
+            
+                    .song h3 {
+                        color: white;
+                        background-color: rgba(0, 0, 0, 0.7);
+                        padding: 10px;
+                        border-radius: 5px;
+                        max-width: 90%;
+                        z-index: 2;
+                        margin-top: 10px; /* Space between audio and title */
+                    }
+            
+                    #search-input {
+                        margin: 20px;
+                        padding: 10px;
+                        width: calc(100% - 120px); /* Full width minus padding for button */
+                        max-width: 500px;
+                        border: 1px solid #281ccc;
+                        border-radius: 5px;
+                        display: inline-block;
+                    }
+            
+                    .share-btn {
+                        padding: 10px 15px;
+                        background-color: #007BFF;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        margin: 20px;
+                        transition: background-color 0.3s;
+                        display: inline-block;
+                    }
+            
+                    .share-btn:hover {
+                        background-color: #0056b3;
+                    }
+            
+                    /* Comment Section Styles */
+                    .comment-section {
+                        margin-top: 30px;
+                        padding: 20px;
+                        background-color: #e9e9e9;
+                        border-radius: 10px;
+                    }
+            
+                    .comment-section h2 {
+                        margin: 0 0 10px;
+                    }
+            
+                    .comment-form {
+                        display: flex;
+                        gap: 10px;
+                        margin-bottom: 20px;
+                    }
+            
+                    .comment-form input {
+                        flex: 1;
+                        padding: 10px;
+                        border: 1px solid #ccc;
+                        border-radius: 5px;
+                    }
+            
+                    .comment-form button {
+                        padding: 10px 15px;
+                        background-color: #4CAF50;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+            
+                    .comment-form button:hover {
+                        background-color: #45a049;
+                    }
+            
+                    .comments {
+                        list-style-type: none;
+                        padding: 0;
+                    }
+            
+                    .comments li {
+                        background: #fff;
+                        margin: 10px 0;
+                        padding: 10px;
+                        border-radius: 5px;
+                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                    }
+                </style>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Search functionality
+                        const searchInput = document.getElementById('search-input');
+                        const songList = document.getElementById('song-list');
+                        const songs = Array.from(songList.children);
+            
+                        searchInput.addEventListener('input', function() {
+                            const query = searchInput.value.toLowerCase();
+                            songs.forEach(song => {
+                                const title = song.querySelector('h3').innerText.toLowerCase();
+                                if (title.includes(query)) {
+                                    song.style.display = ''; // Show matching songs
+                                } else {
+                                    song.style.display = 'none'; // Hide non-matching songs
+                                }
+                            });
+                        });
+            
+                        // Like button functionality
+                        document.querySelectorAll('.like-btn').forEach(button => {
+                            const songId = button.getAttribute('data-song-id');
+                            const storedLikes = localStorage.getItem(`likes_${songId}`) || 0;
+                            button.innerText = `Like (${storedLikes})`;
+            
+                            button.addEventListener('click', function() {
+                                let likes = parseInt(localStorage.getItem(`likes_${songId}`)) || 0;
+                                likes++;
+                                localStorage.setItem(`likes_${songId}`, likes);
+                                button.innerText = `Like (${likes})`;
+                            });
+                        });
+            
+                        // Share button functionality
+                        document.querySelectorAll('.share-btn').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const songTitle = button.getAttribute('data-song-title');
+                                const shareUrl = window.location.href;
+            
+                                if (navigator.share) {
+                                    navigator.share({
+                                        title: songTitle,
+                                        text: `Check out this amazing song: ${songTitle}`,
+                                        url: shareUrl
+                                    }).then(() => {
+                                        alert('Thanks for sharing!');
+                                    }).catch(err => {
+                                        console.error('Error sharing:', err);
+                                        alert('Error sharing the song. Please try again later.');
+                                    });
+                                } else {
+                                    const textArea = document.createElement('textarea');
+                                    textArea.value = `Check out this amazing song: ${songTitle} at ${shareUrl}`;
+                                    document.body.appendChild(textArea);
+                                    textArea.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(textArea);
+                                    alert('Link copied to clipboard! You can now share it manually.');
+                                }
+                            });
+                        });
+            
+                        document.querySelector('.next-btn').addEventListener('click', function() {
+                            window.location.href = 'next-page.html';
+                        });
+            
+                        // Comment functionality
+                        const commentForm = document.getElementById('comment-form');
+                        const commentInput = document.getElementById('comment-input');
+                        const commentsList = document.getElementById('comments-list');
+            
+                        // Load comments from localStorage
+                        const comments = JSON.parse(localStorage.getItem('comments')) || [];
+                        comments.forEach(comment => {
+                            const newComment = document.createElement('li');
+                            newComment.textContent = comment;
+                            commentsList.appendChild(newComment);
+                        });
+            
+                        commentForm.addEventListener('submit', function(event) {
+                            event.preventDefault();
+                            const commentText = commentInput.value.trim();
+                            if (commentText) {
+                                // Add new comment to the list
+                                const newComment = document.createElement('li');
+                                newComment.textContent = commentText;
+                                commentsList.appendChild(newComment);
+            
+                                // Save comment to localStorage
+                                comments.push(commentText);
+                                localStorage.setItem('comments', JSON.stringify(comments));
+            
+                                commentInput.value = ''; // Clear the input
+                            }
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <header>
+                    <h1>@TASCHIG STUDIO</h1>
+                </header>
+                
+                <main>
+                    <button class="share-btn" id="share-button">Share website link</button>
+                    <div style="display: flex; align-items: center;">
+                        <input type="text" id="search-input" placeholder="Search for songs..." />
+                    </div>
+                    <div class="song-list" id="song-list">
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="AKAMFUSE.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Ukamfuse_Tas B @taschig_studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="1">Like (0)</button>
+                                <a href="AKAMFUSE.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="AKAMFUSE">Share</button>
+                            </div>
+                        </div>
+                        
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="BELLO.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Bello_Yozzy G ft Tas B_ @taschig_studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="2">Like (0)</button>
+                                <a href="BELLO.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="BELLO">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="Ngat Ukuwona_Tas B___Dj Tas B.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Ngati ukuwona_Tas B @taschig_studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="3">Like (0)</button>
+                                <a href="Ngat Ukuwona_Tas B___Dj Tas B.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="Ngat Ukuwona_Tas B___Dj Tas B">Share</button>
+                            </div>
+                        </div>
+                        
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="Palibe chondiwopseza.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Palibe chondiwopseza @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="4">Like (0)</button>
+                                <a href="Palibe chondiwopseza.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="Palibe chondiwopseza">Share</button>
+                            </div>
+                        </div>
+                        
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="My Woman--Yozzy G x Ace-Jay ft Tas B.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>My woman_ Tas B ft Yozzy G @Taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="5">Like (0)</button>
+                                <a href="My Woman--Yozzy G x Ace-Jay ft Tas B.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="My Woman--Yozzy G x Ace-Jay ft Tas B">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="Chifomboti_Life ft Tas B__Prod by Tas B22.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Chifomboti_Life ft Tas B__Prod by Tas B @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="Chifomboti_Life ft Tas B__Prod by Tas B22.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="Chifomboti_Life ft Tas B__Prod by Tas B22">Share</button>
+                            </div>
+                        </div>           
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="IWE NELIYA_K_M x Bonaza x Boniwelo ft Allstar.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Iwe neliya Km ft Bonaza x Boniwelo and allstar @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="IWE NELIYA_K_M x Bonaza x Boniwelo ft Allstar.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="IWE NELIYA_K_M x Bonaza x Boniwelo ft Allstar">Share</button>
+                            </div>
+                        </div>            
+                        
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="ZOFUNA KUSIYANA_Ace-Jay_Prod by Tas B.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Zofuna kusiyana_Ace Jay @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="ZOFUNA KUSIYANA_Ace-Jay_Prod by Tas B.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="ZOFUNA KUSIYANA_Ace-Jay_Prod by Tas B">Share</button>
+                            </div>
+                        </div>
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="Sorry_Sir Prem x Noxy mw_Prod by Tas B.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Sorry_Sir prem ft Noxy mw @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="Sorry_Sir Prem x Noxy mw_Prod by Tas B.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="Sorry_Sir Prem x Noxy mw_Prod by Tas B">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="MA LOVe.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Ma love momo _ Linto @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="MA LOVe.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="MA LOVe">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="Chifomboti_Ndede ft Kay Sojah.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Ndede_Chifomboti ft Kay Sojah @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="Chifomboti_Ndede ft Kay Sojah.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="Chifomboti_Ndede ft Kay Sojah">Share</button>
+                            </div>
+                        </div>
+                    
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="TIVETSETSANE_STAR-GAZA.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Timvesetsane_ Stargaza @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="TIVETSETSANE_STAR-GAZA.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="TIVETSETSANE_STAR-GAZA">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="SIKUTI NDIMILANDU_Greva ft Ludo.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Sikuti ndimilandu_ Greva ft Ludo @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="SIKUTI NDIMILANDU_Greva ft Ludo.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="SIKUTI NDIMILANDU_Greva ft Ludo">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="NDIWE ONE.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Ndiwe one_ Chifomboti group @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="NDIWE ONE.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="NDIWE ONE">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="NDIWE ONE.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Ndiwe one_ Chifomboti group @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="NDIWE ONE.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="NDIWE ONE">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="MUZINDIVESERA_LINTO x K - Freza - ML_Prod by Tas B.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Muzindivesera_ Freza x ML ft Linto 'taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="MUZINDIVESERA_LINTO x K - Freza - ML_Prod by Tas B.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="MUZINDIVESERA_LINTO x K - Freza - ML_Prod by Tas B">Share</button>
+                            </div>
+                        </div>
+            
+                        <div class="song" style="background-image: url('LOGO.PNG');">
+                            <audio controls>
+                                <source src="NDIKANGOFIKA_BWADZA X kay zee  ft Kachikato.mp3" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <h3>Ndikangofika_Chifomboti group @taschig studio</h3>
+                            <div class="song-actions">
+                                <button class="like-btn" data-song-id="6">Like (0)</button>
+                                <a href="NDIKANGOFIKA_BWADZA X kay zee  ft Kachikato.mp3" download class="download-btn">Download</a>
+                                <button class="share-btn" data-song-title="NDIKANGOFIKA_BWADZA X kay zee  ft Kachikato">Share</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+            
+                    <div class="navigation">
+                        <button class="next-btn">Next</button>
+                    </div>
+            
+                    <!-- Comment Section -->
+                    <div class="comment-section">
+                        <h2>Comments</h2>
+                        <form id="comment-form" class="comment-form">
+                            <input type="text" id="comment-input" placeholder="Leave a comment..." required>
+                            <button type="submit">Post</button>
+                        </form>
+                        <ul class="comments" id="comments-list"></ul>
+                    </div>
+                </main>
+                
+                <footer>
+                    <p>&copy; For more information call: 0999718542 / 0995075583.</p>
+                </footer>
+            </body>
+            </html>
+            
+
+        </div>
+
+        <div class="navigation">
+            <button class="next-btn">Back</button>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 Music Download Site. All rights reserved.</p>
+    </footer>
+</body>
+</html>

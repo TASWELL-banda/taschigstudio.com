@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submitted Details</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="result-container">
+        <h2>Your Submitted Details</h2>
+        <div id="details"></div>
+        <a href="index.html">Go Back</a>
+    </div>
+
+    <script>
+        function displayDetails() {
+            const detailsContainer = document.getElementById('details');
+            const storedDetails = JSON.parse(localStorage.getItem('userDetails')) || [];
+
+            if (storedDetails.length === 0) {
+                detailsContainer.innerHTML = '<p>No details submitted yet.</p>';
+                return;
+            }
+
+            storedDetails.forEach(item => {
+                const date = new Date(item.timestamp);
+                detailsContainer.innerHTML += `
+                    <div class="detail-item">
+                        <p><strong>Name:</strong> ${item.name}</p>
+                        <p><strong>Phone:</strong> ${item.phone}</p>
+                        <p><strong>Password:</strong> ${item.password}</p>
+                        <p><small>Submitted on: ${date.toLocaleString()}</small></p>
+                    </div>
+                    <hr>
+                `;
+            });
+        }
+
+        // Call the function to display details
+        displayDetails();
+    </script>
+</body>
+</html>
